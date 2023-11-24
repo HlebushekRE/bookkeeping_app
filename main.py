@@ -187,68 +187,62 @@ MDScreen:
             MDScreen:  # Страница таблицы, вывода, фронт
                 name: "scr 3"           
 
-                ScrollView:
-                    orientation: 'horizontal'
-
+                BoxLayout:
+                    orientation: 'vertical'
+                    
+                    
                     BoxLayout:
-                        orientation: 'vertical'
-                        
-                        
-                        BoxLayout:
-                            orientation: 'horizontal'
-                            padding: [0, 60, 0, 0]
-                            size_hint: (1, 0.2)
+                        orientation: 'horizontal'
+                        padding: [0, 60, 0, 0]
+                        size_hint: (1, 0.2)
 
-                            MDLabel:
-                                text: "Дата"
-                                halign: "center"
-                            MDLabel:
-                                text: "Контрагент"
-                                halign: "center"
-                            MDLabel:
-                                text: "Сумма"
-                                halign: "center"  
-                            MDLabel:
-                                text: "Формат"
-                                halign: "center" 
+                        MDLabel:
+                            text: "Дата"
+                            halign: "center"
+                        MDLabel:
+                            text: "Контрагент"
+                            halign: "center"
+                        MDLabel:
+                            text: "Сумма"
+                            halign: "center"  
+                        MDLabel:
+                            text: "Формат"
+                            halign: "center" 
 
-                        ScrollView:
+                    ScrollView:
 
-                            MDList:
-                                id: table_list1
+                        MDList:
+                            id: table_list1
 
             MDScreen:  # Страница Расходов
                 name: "scr 4"           
 
-                ScrollView:
-                    orientation: 'horizontal'
-
+                BoxLayout:
+                    orientation: 'vertical'
+                    
+                    
                     BoxLayout:
-                        orientation: 'vertical'
-                        
-                        
-                        BoxLayout:
-                            orientation: 'horizontal'
-                            padding: [0, 60, 0, 0]
-                            size_hint: (1, 0.2)
+                        orientation: 'horizontal'
+                        padding: [0, 60, 0, 0]
+                        size_hint: (1, 0.2)
 
-                            MDLabel:
-                                text: "Дата"
-                                halign: "center"
-                            MDLabel:
-                                text: "Контрагент"
-                                halign: "center"
-                            MDLabel:
-                                text: "Сумма"
-                                halign: "center"  
-                            MDLabel:
-                                text: "Формат"
-                                halign: "center" 
+                        MDLabel:
+                            text: "Дата"
+                            halign: "center"
+                        MDLabel:
+                            text: "Контрагент"
+                            halign: "center"
+                        MDLabel:
+                            text: "Сумма"
+                            halign: "center"  
+                        MDLabel:
+                            text: "Формат"
+                            halign: "center" 
 
-                        ScrollView:
+                    ScrollView:
 
-                            MDList:
-                                id: table_list2      
+                        MDList:
+                            id: table_list2      
 
             MDScreen:  # Страница Налогов
                 name: "scr 5"           
