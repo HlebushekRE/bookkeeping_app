@@ -3,20 +3,20 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, StringProperty, ListProperty
 
 from kivymd.app import MDApp
-from kivymd.uix.list import OneLineIconListItem, MDList
+from kivymd.uix.list import MDListItemHeadlineText, MDList
 
 from kivymd.font_definitions import fonts
 from kivymd.icon_definitions import md_icons
 
 from kivymd.uix.scrollview import MDScrollView
-from kivymd.uix.datatables import MDDataTable
 
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.metrics import dp
 
-from kivymd.uix.pickers import MDDatePicker
+from kivymd.uix.pickers import MDModalDatePicker
 import datetime
 
+from kivymd.uix.tab import MDTabsItemText, MDTabsItem
 
 
 
@@ -25,43 +25,70 @@ KV = '''
 
     MDList:
 
-        OneLineListItem:
-            text: "Настройки"
-            on_press:
+        MDListItem:
+            on_release:
                 root.nav_drawer.set_state("close")
                 root.screen_manager.current = "scr 1"
+            MDListItemHeadlineText:
+                text: "Настройки"
 
-        OneLineListItem:
-            text: "Ввод"
-            on_press:
+
+        MDListItem:
+            on_release:
                 root.nav_drawer.set_state("close")
                 root.screen_manager.current = "scr 2"
+            MDListItemHeadlineText:
+                text: "Ввод"
 
-        OneLineListItem:
-            text: "Пополнения"
-            on_press:
+
+        MDListItem:
+            on_release:
                 root.nav_drawer.set_state("close")
                 root.screen_manager.current = "scr 3"
+            MDListItemHeadlineText:
+                text: "Пополнения"
 
-        OneLineListItem:
-            text: "Расходы"
-            on_press:
-                root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 4"  
 
-        OneLineListItem:
-            text: "Налоги"
-            on_press:
+        MDListItem:
+            on_release:
                 root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 5"                              
+                root.screen_manager.current = "scr 4"
+            MDListItemHeadlineText:
+                text: "Расходы"
+  
+
+        MDListItem:
+            on_release:
+                root.nav_drawer.set_state("close")
+                root.screen_manager.current = "scr 5" 
+            MDListItemHeadlineText:
+                text: "Налоги"
+                             
 
 
 MDScreen:
 
+    md_bg_color: self.theme_cls.backgroundColor
+
+    MDTabsPrimary:
+        id: tabs
+        pos_hint: {"top": .9}
+        size_hint_x: 1
+        allow_stretch: True
+        label_only: True
+
+        MDDivider:
+
     MDTopAppBar:
+        type: "small"
         pos_hint: {"top": 1}
-        elevation: 4
-        left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+
+        MDTopAppBarLeadingButtonContainer:
+            
+            MDActionTopAppBarButton:
+                icon: "arrow-left"
+                on_release: nav_drawer.set_state("open")
+ 
 
     MDNavigationLayout:
 
@@ -80,7 +107,7 @@ MDScreen:
 
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: "10dp"
+                    padding: "50dp"
                     
 
                     MDLabel:
@@ -94,10 +121,10 @@ MDScreen:
                         MDTextField:
                             id: tax
                             name: 'tax'
-                            hint_text: 'Налоговый %'
                             color_mode: 'custom'
-
                             input_filter: 'float'
+                            MDTextFieldHintText:
+                                text: 'Налоговый %'
 
                     BoxLayout:
                         orientation: 'horizontal'
@@ -106,15 +133,18 @@ MDScreen:
                         MDTextField:
                             id: deductible
                             name: 'deductible '
-                            hint_text: 'Вычитаемый %'
-
                             input_filter: 'float'
+                            MDTextFieldHintText:
+                                text: 'Вычитаемый %'
 
-                    MDFillRoundFlatButton:
-                        text: "Очистить таблицу"
+                            
+
+                    MDButton:                        
                         size_hint: (0.45, 0.45)
                         pos_hint: {"center_x": .5, "center_y": .5}
                         on_release: app.clear_table()
+                        MDButtonText:
+                            text: "Очистить таблицу"
 
 
             MDScreen:  # Страница ввода, фронт
@@ -130,7 +160,7 @@ MDScreen:
 
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: "10dp"
+                    padding: "65dp"
 
                     BoxLayout:
                         orientation: 'horizontal'
@@ -141,8 +171,10 @@ MDScreen:
                         MDTextField:
                             id: check_date
                             name: 'date'
-                            hint_text: 'Дата'
                             on_focus: app.show_date_picker()
+                            MDTextFieldHintText:
+                                text: 'Дата'
+                            
                             
                     BoxLayout:
                         orientation: 'horizontal'
@@ -153,7 +185,8 @@ MDScreen:
                         MDTextField:
                             id: man_name
                             name: 'man_name'
-                            hint_text: 'Имя'
+                            MDTextFieldHintText:
+                                text: 'Имя'
 
                     BoxLayout:
                         orientation: 'horizontal'
@@ -164,9 +197,9 @@ MDScreen:
                         MDTextField:
                             id: Summ
                             name: 'Summ'
-                            hint_text: 'Сумма'
-
                             input_filter: 'int'
+                            MDTextFieldHintText:
+                                text: 'Сумма'
 
                     BoxLayout:
                         orientation: 'horizontal'
@@ -174,14 +207,16 @@ MDScreen:
                         MDTextField:
                             id: format_type
                             name: 'format_type'
-                            hint_text: 'Формат'
                             on_focus: if self.focus: app.menu.open()
+                            MDTextFieldHintText:
+                                text: 'Формат'
 
-                    MDFillRoundFlatButton:
-                        text: "Ввод"
+                    MDButton:
                         size_hint: (0.45, 0.45)
                         pos_hint: {"center_x": .5, "center_y": .5}
                         on_release: app.calc_table(*args)
+                        MDButtonText:
+                            text: "Ввод"
 
 
             MDScreen:  # Страница таблицы, вывода, фронт
@@ -189,6 +224,7 @@ MDScreen:
 
                 BoxLayout:
                     orientation: 'vertical'
+                    padding: "60dp"
                     
                     
                     BoxLayout:
@@ -219,6 +255,7 @@ MDScreen:
 
                 BoxLayout:
                     orientation: 'vertical'
+                    padding: "60dp"
                     
                     
                     BoxLayout:
@@ -314,7 +351,7 @@ class bookkeeping(MDApp):
         '''
         Events called when the "OK" dialog box button is clicked.
 
-        :type instance: <kivymd.uix.picker.MDDatePicker object>;
+        :type instance: <kivymd.uix.picker.MDModalDatePicker object>;
         :param value: selected date;
         :type value: <class 'datetime.date'>;
         :param date_range: list of 'datetime.date' objects in the selected range;
@@ -325,7 +362,7 @@ class bookkeeping(MDApp):
         '''Events called when the "CANCEL" dialog box button is clicked.'''
 
     def show_date_picker(self):  # Есть баг? при нажатии в любое место, вызывает окно повторно, надо бы пофиксить
-        date_dialog = MDDatePicker()
+        date_dialog = MDModalDatePicker()
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
@@ -339,6 +376,18 @@ class bookkeeping(MDApp):
         return self.screen
     
     def on_start(self):
+        for tab_name in [
+            "Пополнение", "Расходы", "Итог"
+        ]:
+            self.root.ids.tabs.add_widget(
+                MDTabsItem(
+                    MDTabsItemText(
+                        text=tab_name,
+                    ),
+                )
+            )
+        self.root.ids.tabs.switch_tab(text="Пополнение")
+    
         self.screen.ids.tax.text = '6'
         self.screen.ids.deductible.text = '10'
         self.screen.ids.check_date.text = datetime.date.today().strftime("%d.%m.%Y")

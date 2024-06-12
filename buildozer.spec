@@ -37,7 +37,7 @@ version = 0.5
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, Kivy==2.2.1, kivy-deps.angle==0.3.3, kivy-deps.glew==0.3.1, kivy-deps.sdl2==0.6.0, Kivy-Garden==0.1.5, kivymd, https://github.com/kivymd/KivyMD/archive/master.zip#sha256=e55b90474afa09a6c971f4ef1cdf07a4e028d7e565d8165179b7fc9b8f6b4d1b, Pillow==10.1.0, pyjnius==1.6.1
+requirements = python3, Kivy==2.2.1, kivymd, https://github.com/kivymd/KivyMD/archive/master.zip#sha256=e55b90474afa09a6c971f4ef1cdf07a4e028d7e565d8165179b7fc9b8f6b4d1b, pyjnius==1.6.1, Pillow
 
 
 # (str) Custom source folders for requirements
