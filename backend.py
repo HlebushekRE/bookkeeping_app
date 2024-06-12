@@ -10,11 +10,11 @@ mydb = mysql.connector.connect(
 print('\n\n')
 
 mycursor = mydb.cursor()
-mycursor.execute('SHOW TABLES')
+'''mycursor.execute('SHOW TABLES')
 
 for tb in mycursor:
     print(tb)
-
+'''
 #Функция ручного ввода данных
 
 #Функция парсера

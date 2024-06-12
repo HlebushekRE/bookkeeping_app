@@ -13,10 +13,11 @@ from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.metrics import dp
 
-from kivymd.uix.pickers import MDModalDatePicker
 import datetime
+from kivymd.uix.pickers import MDModalDatePicker
 
 from kivymd.uix.tab import MDTabsItemText, MDTabsItem
+import backend
 
 
 
@@ -63,6 +64,20 @@ KV = '''
                 root.screen_manager.current = "scr 5" 
             MDListItemHeadlineText:
                 text: "Налоги"
+
+        MDListItem:
+            on_release:
+                root.nav_drawer.set_state("close")
+                root.screen_manager.current = "scr 6"
+            MDListItemHeadlineText:
+                text: "Регистрация"
+
+        MDListItem:
+            on_release:
+                root.nav_drawer.set_state("close")
+                root.screen_manager.current = "scr 7"
+            MDListItemHeadlineText:
+                text: "Вход"
                              
 
 
@@ -137,7 +152,12 @@ MDScreen:
                             MDTextFieldHintText:
                                 text: 'Вычитаемый %'
 
-                            
+                    MDButton:                        
+                        size_hint: (0.45, 0.45)
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.switch_theme()
+                        MDButtonText:
+                            text: "Тема"                            
 
                     MDButton:                        
                         size_hint: (0.45, 0.45)
@@ -171,7 +191,7 @@ MDScreen:
                         MDTextField:
                             id: check_date
                             name: 'date'
-                            on_focus: app.show_date_picker()
+                            on_focus: app.show_date_picker(self.focus)
                             MDTextFieldHintText:
                                 text: 'Дата'
                             
@@ -285,7 +305,126 @@ MDScreen:
                 name: "scr 5"           
 
                 Label:
-                    text: 'screen 5'                             
+                    text: 'screen 5' 
+
+            MDScreen:  # Страница регистрации
+                name: "scr 6"
+
+                # label - Имя
+                # label - Фамилия
+                # label - Логин
+                # label - пароль
+
+
+                #кнопка - ввод
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "65dp"
+                            
+                            
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: usr_name
+                            name: 'usr_name'
+                            MDTextFieldHintText:
+                                text: 'Имя?'
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: family
+                            name: 'family'
+                            MDTextFieldHintText:
+                                text: 'Фамилия?'
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: login
+                            name: 'login'
+                            MDTextFieldHintText:
+                                text: 'Логин?'
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: pass
+                            name: 'pass'
+                            MDTextFieldHintText:
+                                text: 'Пароль?'
+
+
+                    MDButton:
+                        size_hint: (0.45, 0.45)
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.calc_table(*args)
+                        MDButtonText:
+                            text: "Ввод"         
+
+            MDScreen:  # Страница входа
+                name: "scr 7"
+
+                # label - Логин
+                # label - пароль
+
+                #кнопка - ввод
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: "65dp"
+                            
+                            
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        padding: [20, 0, 20, 80]
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: login
+                            name: 'login'
+                            MDTextFieldHintText:
+                                text: 'Логин'
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        padding: [20, 0, 20, 200]
+
+                        MDIconButton:
+                            icon: "nature"
+
+                        MDTextField:
+                            id: pass
+                            name: 'pass'
+                            MDTextFieldHintText:
+                                text: 'Пароль'
+
+
+                    MDButton:
+                        size_hint: (0.45, 0.45)
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.calc_table(*args)
+                        MDButtonText:
+                            text: "Ввод"                         
                              
 
         MDNavigationDrawer:
@@ -343,36 +482,53 @@ class bookkeeping(MDApp):
             items=menu_items,
             position="bottom",
         )
+        date_picker = None
+       
 
+    def switch_theme(self):
+        self.theme_cls.switch_theme()
 
+    def on_save(self, instance, value, date_range): 
+        self.screen.ids.check_date.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+        self.on_cancel()
 
-    def on_save(self, instance, value, date_range):
-        self.screen.ids.check_date.text = value.strftime("%d.%m.%Y")
         '''
-        Events called when the "OK" dialog box button is clicked.
+            Events called when the "OK" dialog box button is clicked.
 
-        :type instance: <kivymd.uix.picker.MDModalDatePicker object>;
-        :param value: selected date;
-        :type value: <class 'datetime.date'>;
-        :param date_range: list of 'datetime.date' objects in the selected range;
-        :type date_range: <class 'list'>;
+            :type instance: <kivymd.uix.picker.MDModalDatePicker object>; 
+            :param value: selected date; 
+            :type value: <class 'datetime.date'>; 
+            :param date_range: list of 'datetime.date' objects in the selected range; 
+            :type date_range: <class 'list'>; 
         '''
+        
+    def on_cancel(self, *args):
+        self.date_picker.dismiss()
 
-    def on_cancel(self, instance, value):
-        '''Events called when the "CANCEL" dialog box button is clicked.'''
+    def show_date_picker(self, focus):
+        if not focus:
+            return        
+        
+        self.date_picker = MDModalDatePicker(
+            min_date=None,
+            max_date=None,
+            mode="picker",
+            mark_today=True,            
+        )
 
-    def show_date_picker(self):  # Есть баг? при нажатии в любое место, вызывает окно повторно, надо бы пофиксить
-        date_dialog = MDModalDatePicker()
-        date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
-        date_dialog.open()
+        selected_date = self.date_picker.get_date()
+
+        self.date_picker.bind(
+            on_cancel=self.on_cancel, 
+            on_ok=lambda *args: self.on_save(self.date_picker, selected_date[0], selected_date)
+        )
+        self.date_picker.open()
 
     def set_item(self, text_item):  #Вызывается функция, когда выбран элемент из списка, можно if ом определить и использовать
         self.screen.ids.format_type.text = text_item
         self.menu.dismiss()
 
     def build(self):
-        self.theme_cls.primary_palette = "Orange"
-        self.theme_cls.theme_style = "Dark"
         return self.screen
     
     def on_start(self):
