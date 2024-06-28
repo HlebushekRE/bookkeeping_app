@@ -19,6 +19,8 @@ from kivymd.uix.pickers import MDModalDatePicker
 from kivymd.uix.tab import MDTabsItemText, MDTabsItem
 import backend
 
+import sys
+from PyQt5.QtWidgets import QApplication, QFileDialog
 
 
 KV = '''
@@ -33,14 +35,12 @@ KV = '''
             MDListItemHeadlineText:
                 text: "Настройки"
 
-
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
                 root.screen_manager.current = "scr 2"
             MDListItemHeadlineText:
                 text: "Ввод"
-
 
         MDListItem:
             on_release:
@@ -49,7 +49,6 @@ KV = '''
             MDListItemHeadlineText:
                 text: "Пополнения"
 
-
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
@@ -57,7 +56,6 @@ KV = '''
             MDListItemHeadlineText:
                 text: "Расходы"
   
-
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
@@ -79,20 +77,25 @@ KV = '''
             MDListItemHeadlineText:
                 text: "Вход"
                              
-
+        MDListItem:
+            on_release:
+                root.nav_drawer.set_state("close")
+                root.screen_manager.current = "scr 8"
+            MDListItemHeadlineText:
+                text: "Парсер"
 
 MDScreen:
 
     md_bg_color: self.theme_cls.backgroundColor
 
-    MDTabsPrimary:
-        id: tabs
-        pos_hint: {"top": .9}
-        size_hint_x: 1
-        allow_stretch: True
-        label_only: True
+    # MDTabsPrimary:
+    #    id: tabs
+    #    pos_hint: {"top": .9}
+    #    size_hint_x: 1
+    #    allow_stretch: True
+    #    label_only: True
 
-        MDDivider:
+    #    MDDivider:
 
     MDTopAppBar:
         type: "small"
@@ -103,6 +106,20 @@ MDScreen:
             MDActionTopAppBarButton:
                 icon: "arrow-left"
                 on_release: nav_drawer.set_state("open")
+
+        MDTopAppBarTitle:
+            text: "Bookkeeping"
+            pos_hint: {"center_x": .5}
+
+        MDTopAppBarTrailingButtonContainer:
+
+            MDActionTopAppBarButton:
+                icon: "theme-light-dark"
+                on_release: app.switch_theme()
+
+            MDActionTopAppBarButton:
+                icon: "table-plus"
+                on_release: app.print_table()
  
 
     MDNavigationLayout:
@@ -150,14 +167,7 @@ MDScreen:
                             name: 'deductible '
                             input_filter: 'float'
                             MDTextFieldHintText:
-                                text: 'Вычитаемый %'
-
-                    MDButton:                        
-                        size_hint: (0.45, 0.45)
-                        pos_hint: {"center_x": .5, "center_y": .5}
-                        on_release: app.switch_theme()
-                        MDButtonText:
-                            text: "Тема"                            
+                                text: 'Вычитаемый %'                         
 
                     MDButton:                        
                         size_hint: (0.45, 0.45)
@@ -321,13 +331,9 @@ MDScreen:
                 BoxLayout:
                     orientation: 'vertical'
                     padding: "65dp"
-                            
-                            
+                                                       
                     BoxLayout:
                         orientation: 'horizontal'
-
-                        MDIconButton:
-                            icon: "nature"
 
                         MDTextField:
                             id: usr_name
@@ -338,9 +344,6 @@ MDScreen:
                     BoxLayout:
                         orientation: 'horizontal'
 
-                        MDIconButton:
-                            icon: "nature"
-
                         MDTextField:
                             id: family
                             name: 'family'
@@ -350,35 +353,29 @@ MDScreen:
                     BoxLayout:
                         orientation: 'horizontal'
 
-                        MDIconButton:
-                            icon: "nature"
-
                         MDTextField:
-                            id: login
-                            name: 'login'
+                            id: login_reg
+                            name: 'login_reg'
                             MDTextFieldHintText:
                                 text: 'Логин?'
 
                     BoxLayout:
                         orientation: 'horizontal'
 
-                        MDIconButton:
-                            icon: "nature"
-
                         MDTextField:
-                            id: pass
-                            name: 'pass'
+                            id: pasw_reg
+                            name: 'pasw_reg'
                             MDTextFieldHintText:
                                 text: 'Пароль?'
-
 
                     MDButton:
                         size_hint: (0.45, 0.45)
                         pos_hint: {"center_x": .5, "center_y": .5}
-                        on_release: app.calc_table(*args)
+                        on_release: app.reg_user(*args)
                         MDButtonText:
                             text: "Ввод"         
 
+                            
             MDScreen:  # Страница входа
                 name: "scr 7"
 
@@ -390,18 +387,14 @@ MDScreen:
                 BoxLayout:
                     orientation: 'vertical'
                     padding: "65dp"
-                            
-                            
+                                                        
                     BoxLayout:
                         orientation: 'horizontal'
                         padding: [20, 0, 20, 80]
 
-                        MDIconButton:
-                            icon: "nature"
-
                         MDTextField:
-                            id: login
-                            name: 'login'
+                            id: login_entry
+                            name: 'login_entry'
                             MDTextFieldHintText:
                                 text: 'Логин'
 
@@ -409,12 +402,9 @@ MDScreen:
                         orientation: 'horizontal'
                         padding: [20, 0, 20, 200]
 
-                        MDIconButton:
-                            icon: "nature"
-
                         MDTextField:
-                            id: pass
-                            name: 'pass'
+                            id: pasw_entry
+                            name: 'pasw_entry'
                             MDTextFieldHintText:
                                 text: 'Пароль'
 
@@ -422,9 +412,38 @@ MDScreen:
                     MDButton:
                         size_hint: (0.45, 0.45)
                         pos_hint: {"center_x": .5, "center_y": .5}
-                        on_release: app.calc_table(*args)
+                        on_release: app.login_usr(*args)
                         MDButtonText:
-                            text: "Ввод"                         
+                            text: "Ввод"    
+
+            MDScreen:  # Страница парсера
+                name: "scr 8"           
+
+                MDButton: # Поменять, лучше это не в ввиде кнопки делать
+                    size_hint: (0.45, 0.45)
+                    pos_hint: {"center_x": .5, "center_y": .7}
+                    on_release: app.file_selection()
+                    MDButtonText:
+                        text: "Выбор файла"  
+
+                MDLabel:
+                    id: id_label_selected_file
+                    text: "Выбранный файл: Отсутствует"
+                    halign: "center"
+                    pos: (self.width / 2 - self.size[0] / 2, 50)
+           
+                MDButton:
+                    size_hint: (0.45, 0.45)
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_release: app.send_file()
+                    MDButtonText:
+                        text: "Ввод"   
+
+                MDLabel:
+                    id: id_label_send_file
+                    text: ""
+                    halign: "center"
+                    pos: (self.width / 2 - self.size[0] / 2, -40)                  
                              
 
         MDNavigationDrawer:
@@ -459,16 +478,11 @@ class ItemTable(BoxLayout):
     total = StringProperty()
     type_input = StringProperty()
 
-
 class ContentNavigationDrawer(MDScrollView):
     screen_manager = ObjectProperty()
     nav_drawer = ObjectProperty()
 
-
-
-
 class bookkeeping(MDApp):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.screen = Builder.load_string(KV)
@@ -483,10 +497,30 @@ class bookkeeping(MDApp):
             position="bottom",
         )
         date_picker = None
+        selected_file = None
        
-
     def switch_theme(self):
         self.theme_cls.switch_theme()
+
+    def reg_user(self, *args):
+        name = self.screen.ids.usr_name.text
+        surname = self.screen.ids.family.text
+        login = self.screen.ids.login_reg.text
+        password = self.screen.ids.pasw_reg.text
+
+        db = backend.DatabaseManager()
+        db.connect()
+        db.register_user(name, surname, login, password)
+        db.close()
+
+    def login_usr(self, *args):
+        username = self.screen.ids.login_entry.text
+        password = self.screen.ids.pasw_entry.text
+
+        db = backend.DatabaseManager()
+        db.connect()
+        db.login(username, password)
+        db.close()
 
     def on_save(self, instance, value, date_range): 
         self.screen.ids.check_date.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
@@ -524,15 +558,34 @@ class bookkeeping(MDApp):
         )
         self.date_picker.open()
 
+    def file_selection(self):
+        app = QApplication(sys.argv)
+
+        file_dialog = QFileDialog()
+        file_dialog.setNameFilter("PDF files (*.pdf)")
+        self.selected_file = file_dialog.getOpenFileName()[0]
+
+        print("Вы выбрали файл:", self.selected_file)
+        self.screen.ids.id_label_selected_file.text = "Выбранный файл: {}".format(self.selected_file)
+
+    def send_file(self):
+        self.screen.ids.id_label_send_file.text = "Файл отправлен"
+
+        db = backend.DatabaseManager()
+        db.connect()
+        db.what_parsing(self.selected_file)
+        db.close()
+
     def set_item(self, text_item):  #Вызывается функция, когда выбран элемент из списка, можно if ом определить и использовать
         self.screen.ids.format_type.text = text_item
         self.menu.dismiss()
+        # Я уже не помню для чего это
 
     def build(self):
         return self.screen
     
     def on_start(self):
-        for tab_name in [
+        '''for tab_name in [
             "Пополнение", "Расходы", "Итог"
         ]:
             self.root.ids.tabs.add_widget(
@@ -543,14 +596,16 @@ class bookkeeping(MDApp):
                 )
             )
         self.root.ids.tabs.switch_tab(text="Пополнение")
+        '''
     
         self.screen.ids.tax.text = '6'
         self.screen.ids.deductible.text = '10'
         self.screen.ids.check_date.text = datetime.date.today().strftime("%d.%m.%Y")
 
-
+    def print_table(self):
+        print('to be continued')
     
-    def calc_table(self, *args):
+    def calc_table(self, *args): # Это расчёты, потом надо будет на сервер перенести
         tax = float(self.screen.ids.tax.text)
         deductible = float(self.screen.ids.deductible.text)
         check_date = self.screen.ids.check_date.text
