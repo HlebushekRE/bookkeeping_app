@@ -9,6 +9,7 @@ from kivymd.font_definitions import fonts
 from kivymd.icon_definitions import md_icons
 
 from kivymd.uix.scrollview import MDScrollView
+import requests
 
 from kivymd.uix.menu import MDDropdownMenu
 from kivy.metrics import dp
@@ -18,6 +19,9 @@ from kivymd.uix.pickers import MDModalDatePicker
 
 from kivymd.uix.tab import MDTabsItemText, MDTabsItem
 import backend
+import __init__
+
+
 
 import sys
 from PyQt5.QtWidgets import QApplication, QFileDialog
@@ -47,40 +51,33 @@ KV = '''
                 root.nav_drawer.set_state("close")
                 root.screen_manager.current = "scr 3"
             MDListItemHeadlineText:
-                text: "Пополнения"
-
-        MDListItem:
-            on_release:
-                root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 4"
-            MDListItemHeadlineText:
-                text: "Расходы"
+                text: "Таблица"
   
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 5" 
+                root.screen_manager.current = "scr 4" 
             MDListItemHeadlineText:
-                text: "Налоги"
+                text: "Расчёты"
 
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 6"
+                root.screen_manager.current = "scr 5"
             MDListItemHeadlineText:
                 text: "Регистрация"
 
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 7"
+                root.screen_manager.current = "scr 6"
             MDListItemHeadlineText:
                 text: "Вход"
                              
         MDListItem:
             on_release:
                 root.nav_drawer.set_state("close")
-                root.screen_manager.current = "scr 8"
+                root.screen_manager.current = "scr 7"
             MDListItemHeadlineText:
                 text: "Парсер"
 
@@ -200,8 +197,8 @@ MDScreen:
 
                         MDTextField:
                             id: check_date
-                            name: 'date'
-                            on_focus: app.show_date_picker(self.focus)
+                            name: 'check_date'
+                            on_focus: app.show_date_picker(self.focus, self.name)
                             MDTextFieldHintText:
                                 text: 'Дата'
                             
@@ -237,30 +234,58 @@ MDScreen:
                         MDTextField:
                             id: format_type
                             name: 'format_type'
-                            on_focus: if self.focus: app.menu.open()
+                            on_focus: if self.focus: app.drop_format_input()
                             MDTextFieldHintText:
                                 text: 'Формат'
 
                     MDButton:
                         size_hint: (0.45, 0.45)
                         pos_hint: {"center_x": .5, "center_y": .5}
-                        on_release: app.calc_table(*args)
+                        on_release: app.manual_input()
                         MDButtonText:
                             text: "Ввод"
 
 
             MDScreen:  # Страница таблицы, вывода, фронт
-                name: "scr 3"           
+                name: "scr 3"       
 
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: "60dp"
-                    
+
                     
                     BoxLayout:
                         orientation: 'horizontal'
-                        padding: [0, 60, 0, 0]
+                        padding: [0, 60, 0, 0] 
+                        size_hint: (1, 0.4)
+
+
+                        MDTextField:
+                            id: format_type_filter
+                            name: 'format_type_filter'
+                            on_focus: if self.focus: app.drop_format_filter()
+                            MDTextFieldHintText:
+                                text: 'Формат вывода'
+                        
+                        MDTextField:
+                            id: date_filter1
+                            name: 'date_filter1'
+                            on_focus: app.show_date_picker(self.focus, self.name)
+                            MDTextFieldHintText:
+                                text: 'От'
+
+                        MDTextField:
+                            id: date_filter2
+                            name: 'date_filter2'
+                            on_focus: app.show_date_picker(self.focus, self.name)
+                            MDTextFieldHintText:
+                                text: 'До'
+                            
+                    
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        padding: [0, 60, 0, 0] 
                         size_hint: (1, 0.2)
+
 
                         MDLabel:
                             text: "Дата"
@@ -280,45 +305,55 @@ MDScreen:
                         MDList:
                             id: table_list1
 
-            MDScreen:  # Страница Расходов
-                name: "scr 4"           
-
+            MDScreen:  # Страница Налогов
+                name: "scr 4"
+                
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: "60dp"
-                    
-                    
+                    padding: "65dp"
+
                     BoxLayout:
                         orientation: 'horizontal'
-                        padding: [0, 60, 0, 0]
-                        size_hint: (1, 0.2)
 
-                        MDLabel:
-                            text: "Дата"
-                            halign: "center"
-                        MDLabel:
-                            text: "Контрагент"
-                            halign: "center"
-                        MDLabel:
-                            text: "Сумма"
-                            halign: "center"  
-                        MDLabel:
-                            text: "Формат"
-                            halign: "center" 
+                        MDTextField:
+                            id: date_filter3
+                            name: 'date_filter3'
+                            on_focus: app.show_date_picker(self.focus, self.name)
+                            MDTextFieldHintText:
+                                text: 'От'
 
-                    ScrollView:
+                        MDTextField:
+                            id: date_filter4
+                            name: 'date_filter4'
+                            on_focus: app.show_date_picker(self.focus, self.name)
+                            MDTextFieldHintText:
+                                text: 'До'
 
-                        MDList:
-                            id: table_list2      
+                    MDLabel:
+                        id: lab_sum_replenishment
+                        text: 'Сумма пополнения: 0' 
 
-            MDScreen:  # Страница Налогов
-                name: "scr 5"           
+                    MDLabel:
+                        id: lab_sum_costs
+                        text: 'Сумма расходов: 0' 
 
-                Label:
-                    text: 'screen 5' 
+                    MDLabel:
+                        id: lab_sum_tax
+                        text: 'Сумма налогов: 0' 
+
+                    MDLabel:
+                        id: lab_balance
+                        text: 'Остаток средств: 0' 
+
+                    MDButton:
+                        size_hint: (0.45, 0.45)
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.print_results()
+                        MDButtonText:
+                            text: "Посчитать"                           
 
             MDScreen:  # Страница регистрации
-                name: "scr 6"
+                name: "scr 5"
 
                 # label - Имя
                 # label - Фамилия
@@ -377,7 +412,7 @@ MDScreen:
 
                             
             MDScreen:  # Страница входа
-                name: "scr 7"
+                name: "scr 6"
 
                 # label - Логин
                 # label - пароль
@@ -417,7 +452,7 @@ MDScreen:
                             text: "Ввод"    
 
             MDScreen:  # Страница парсера
-                name: "scr 8"           
+                name: "scr 7"           
 
                 MDButton: # Поменять, лучше это не в ввиде кнопки делать
                     size_hint: (0.45, 0.45)
@@ -486,6 +521,11 @@ class bookkeeping(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.screen = Builder.load_string(KV)
+        
+        date_picker = None
+        selected_file = None
+
+    def drop_format_input(self):
         menu_items = [
             {
                 "text": i,
@@ -494,11 +534,24 @@ class bookkeeping(MDApp):
         self.menu = MDDropdownMenu(
             caller=self.screen.ids.format_type,
             items=menu_items,
-            position="bottom",
+            pos_hint={'center_x': .7, 'center_y': .7},
+            position="top",
         )
-        date_picker = None
-        selected_file = None
-       
+        self.menu.open()
+
+    def drop_format_filter(self):
+        menu_items = [
+            {
+                "text": i,
+                "on_release": lambda x = i: self.set_item(x),
+            } for i in ['Пополнение', 'Расходы']]
+        self.menu = MDDropdownMenu(
+            caller=self.screen.ids.format_type_filter,
+            items=menu_items,
+            position="top",
+        )
+        self.menu.open()
+
     def switch_theme(self):
         self.theme_cls.switch_theme()
 
@@ -507,6 +560,15 @@ class bookkeeping(MDApp):
         surname = self.screen.ids.family.text
         login = self.screen.ids.login_reg.text
         password = self.screen.ids.pasw_reg.text
+
+        url = 'http://localhost:5000/login'
+        payload = {
+            'name': name,
+            'surname': surname,
+            'login': login,
+            'password': password
+        }
+        response = requests.post(url, data=payload)
 
         db = backend.DatabaseManager()
         db.connect()
@@ -517,13 +579,29 @@ class bookkeeping(MDApp):
         username = self.screen.ids.login_entry.text
         password = self.screen.ids.pasw_entry.text
 
-        db = backend.DatabaseManager()
+        url = 'http://localhost:5000/login'
+        payload = {
+            'username': username,
+            'password': password
+        }
+        response = requests.post(url, data=payload)
+
+        '''db = backend.DatabaseManager()
         db.connect()
         db.login(username, password)
-        db.close()
+        db.close()'''
 
-    def on_save(self, instance, value, date_range): 
-        self.screen.ids.check_date.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+    def on_save(self, instance, value, date_range, id): 
+        if id == 'date_filter1':
+            self.screen.ids.date_filter1.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+        elif id == 'date_filter2':
+            self.screen.ids.date_filter2.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+        elif id == 'date_filter3':
+            self.screen.ids.date_filter3.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+        elif id == 'date_filter4':
+            self.screen.ids.date_filter4.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
+        elif id == 'check_date':
+            self.screen.ids.check_date.text = self.date_picker.get_date()[0].strftime("%d.%m.%Y")
         self.on_cancel()
 
         '''
@@ -539,7 +617,7 @@ class bookkeeping(MDApp):
     def on_cancel(self, *args):
         self.date_picker.dismiss()
 
-    def show_date_picker(self, focus):
+    def show_date_picker(self, focus, id):
         if not focus:
             return        
         
@@ -554,7 +632,7 @@ class bookkeeping(MDApp):
 
         self.date_picker.bind(
             on_cancel=self.on_cancel, 
-            on_ok=lambda *args: self.on_save(self.date_picker, selected_date[0], selected_date)
+            on_ok=lambda *args: self.on_save(self.date_picker, selected_date[0], selected_date, id)
         )
         self.date_picker.open()
 
@@ -571,41 +649,124 @@ class bookkeeping(MDApp):
     def send_file(self):
         self.screen.ids.id_label_send_file.text = "Файл отправлен"
 
-        db = backend.DatabaseManager()
+        url = 'http://localhost:5000/what_parsing'
+        files = {'file': open(self.selected_file, 'rb')}
+        response = requests.post(url, files=files)
+
+        '''db = backend.DatabaseManager()
         db.connect()
         db.what_parsing(self.selected_file)
-        db.close()
+        db.close()'''
 
-    def set_item(self, text_item):  #Вызывается функция, когда выбран элемент из списка, можно if ом определить и использовать
+    def set_item(self, text_item):
         self.screen.ids.format_type.text = text_item
+        self.screen.ids.format_type_filter.text = text_item
         self.menu.dismiss()
-        # Я уже не помню для чего это
 
     def build(self):
         return self.screen
     
     def on_start(self):
-        '''for tab_name in [
-            "Пополнение", "Расходы", "Итог"
-        ]:
-            self.root.ids.tabs.add_widget(
-                MDTabsItem(
-                    MDTabsItemText(
-                        text=tab_name,
-                    ),
-                )
-            )
-        self.root.ids.tabs.switch_tab(text="Пополнение")
-        '''
-    
         self.screen.ids.tax.text = '6'
         self.screen.ids.deductible.text = '10'
         self.screen.ids.check_date.text = datetime.date.today().strftime("%d.%m.%Y")
+        self.screen.ids.date_filter1.text = datetime.date(2000, 1, 1).strftime("%d.%m.%Y")
+        self.screen.ids.date_filter2.text = datetime.date(2100, 12, 20).strftime("%d.%m.%Y")
+        self.screen.ids.format_type_filter.text = 'Пополнение'
+
+    def print_results(self):
+        tax = float(self.screen.ids.tax.text)
+        first_date = self.screen.ids.date_filter1.text
+        second_date = self.screen.ids.date_filter2.text
+
+        url = 'http://localhost:5000/calculations'
+        payload = {
+            'tax': tax,
+            'first_date': first_date,
+            'second_date': second_date
+        }
+        response = requests.post(url, data=payload)
+
+        sum_replenishment, sum_costs, sum_tax, balance = response.json()
+
+
+        '''db = backend.DatabaseManager()
+        db.connect()
+        sum_replenishment, sum_costs, sum_tax, balance = db.calculations(tax, first_date, second_date)
+        db.close()'''
+
+        self.screen.ids.lab_sum_replenishment.text = 'Сумма пополнений: ' + str(sum_replenishment)
+        self.screen.ids.lab_sum_costs.text = 'Сумма расходов: ' + str(sum_costs)
+        self.screen.ids.lab_sum_tax.text = 'Сумма налогов: ' + str(sum_tax)
+        self.screen.ids.lab_balance.text = 'Остаток средств: ' + str(balance)
 
     def print_table(self):
-        print('to be continued')
-    
-    def calc_table(self, *args): # Это расчёты, потом надо будет на сервер перенести
+        self.clear_table()
+        format_filter = self.screen.ids.format_type_filter.text
+        first_date = self.screen.ids.date_filter1.text
+        second_date = self.screen.ids.date_filter2.text
+
+        # связь с сервером
+        url = 'http://localhost:5000/fetch_data'
+        payload = {
+            'format_filter': format_filter,
+            'first_date': first_date,
+            'second_date': second_date
+        }
+        response = requests.get(url, data=payload)
+        rows = response.json()
+
+        # старый вариант
+        '''db = backend.DatabaseManager()
+        db.connect()
+        rows = db.fetch_data(format_filter, first_date, second_date)
+        db.close()'''
+
+        for row in rows:
+            if row[3] == 0:
+                format_type = 'Пополнение'
+            else:
+                format_type = 'Расходы'
+
+            self.screen.ids.table_list1.add_widget(
+                ItemTable(
+                    date = str(row[2]),
+                    name = row[0],
+                    total = str(row[1]),
+                    type_input = format_type,
+                )
+            )
+
+    def manual_input(self):
+        check_date = self.screen.ids.check_date.text
+        Summ = int(self.screen.ids.Summ.text)
+        man_name = self.screen.ids.man_name.text
+        format_type = self.screen.ids.format_type.text
+        deductible = float(self.screen.ids.deductible.text)  
+
+        if format_type == 'Пополнение':
+            format_type = 0
+            Summ = Summ - Summ / 100 * deductible
+        else:
+            format_type = 1
+
+        url = 'http://localhost:5000/insert_data'
+        payload = {
+            'ids': 1,
+            'date': check_date,
+            'name': man_name,
+            'total': Summ,
+            'type_input': format_type
+        }
+        response = requests.post(url, data=payload)
+
+        # старый вариант
+        '''db = backend.DatabaseManager()
+        db.connect()
+        db.insert_data(1, check_date, man_name, Summ, format_type)
+        db.close()'''      
+
+    '''def calc_table(self, *args): # Это расчёты, потом надо будет на сервер перенести
         tax = float(self.screen.ids.tax.text)
         deductible = float(self.screen.ids.deductible.text)
         check_date = self.screen.ids.check_date.text
@@ -638,11 +799,13 @@ class bookkeeping(MDApp):
                     total = str(Summ),
                     type_input = format_type,
                 )
-            )
+            )'''
 
 
     def clear_table(self):
         self.screen.ids.table_list1.clear_widgets()
     
-
+if __name__ == '__main__': 
+    __init__.app.run()
 bookkeeping().run()
+
