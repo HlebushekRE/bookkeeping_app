@@ -1,14 +1,16 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify, send_file
 import mysql.connector
 from config import Config
 from backend import DatabaseManager
+import threading
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '1qazxsw23edc'
+app.config['MYSQL_PASSWORD'] = '1qazxsw23edcG308:'
 app.config['MYSQL_DB'] = 'bookkeeping'
 
 mysql = mysql.connector.connect(host=app.config["MYSQL_HOST"],
@@ -16,34 +18,57 @@ mysql = mysql.connector.connect(host=app.config["MYSQL_HOST"],
                                password=app.config["MYSQL_PASSWORD"],
                                database=app.config["MYSQL_DB"])
 
-'''@app._got_first_request
-def connect_db():
-    DatabaseManager.connect()'''
+
+
+@app.route("/")
+def  index ():
+    return 'Веб-приложение с Python Flask!'
 
 @app.route("/register", methods=["POST"])
 def register():
-    return DatabaseManager.register_user(request.form["name"], request.form["surname"], request.form["login"], request.form["password"])
+    db = DatabaseManager()
+    db.connect()
+    return db.register_user(request.form["name"], request.form["surname"], request.form["login"], request.form["password"])
 
 @app.route("/login", methods=["POST"])
 def login():
-    return DatabaseManager.login(request.form["username"], request.form["pasw"])
+    db = DatabaseManager()
+    db.connect()
+    return db.login(request.form["username"], request.form["pasw"])
 
 @app.route("/what_parsing", methods=["POST"])
 def what_parsing():
-    return DatabaseManager.what_parsing(request.files["file"])
+    db = DatabaseManager()
+    db.connect()
+
+    print('\n')
+    print(request.files["file"], type(request.files["file"]))
+    print('\n')
+    return db.what_parsing(request.files["file"])
 
 @app.route("/insert_data", methods=["POST"])
 def insert_data():
-    return DatabaseManager.insert_data(request.form["ids"], request.form["date"], request.form["name"], request.form["total"], request.form["type_input"])
+    db = DatabaseManager()
+    db.connect()
+    return db.insert_data(request.form["ids"], request.form["date"], request.form["name"], request.form["total"], request.form["type_input"])
 
-@app.route("/fetch_data", methods=["GET"])
+@app.route("/fetch_data", methods=["POST"])
 def fetch_data():
-    return DatabaseManager.fetch_data(request.args.get("format_filter"), request.args.get("first_date"), request.args.get("second_date"))
+    db = DatabaseManager()
+    db.connect()
+    print('\n')
+    print(request.form["format_filter"])
+    print(request.form["first_date"])
+    print(request.form["second_date"])
+    print('\n')
+    return db.fetch_data(request.form["format_filter"], request.form["first_date"], request.form["second_date"])
     
 @app.route("/calculations", methods=["POST"])
 def calculations():
-    return DatabaseManager.calculations(request.form["tax"], request.form["first_date"], request.form["second_date"])
-
+    db = DatabaseManager()
+    db.connect()
+    result = db.calculations(request.form["tax"], request.form["first_date"], request.form["second_date"])
+    return result
 
 
 
@@ -122,12 +147,15 @@ def calculations():
 
 
 
-
-
-
-
-
-
-
-if __name__ == '__main__':
+def run_app():
     app.run()
+
+threading.Thread(target=run_app).start()
+
+
+
+
+
+
+'''if __name__ == '__main__':
+    app.run()'''

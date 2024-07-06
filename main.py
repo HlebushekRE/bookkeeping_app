@@ -570,15 +570,16 @@ class bookkeeping(MDApp):
         }
         response = requests.post(url, data=payload)
 
-        db = backend.DatabaseManager()
+        '''db = backend.DatabaseManager()
         db.connect()
         db.register_user(name, surname, login, password)
-        db.close()
+        db.close()'''
 
     def login_usr(self, *args):
         username = self.screen.ids.login_entry.text
         password = self.screen.ids.pasw_entry.text
 
+        # новый
         url = 'http://localhost:5000/login'
         payload = {
             'username': username,
@@ -586,6 +587,7 @@ class bookkeeping(MDApp):
         }
         response = requests.post(url, data=payload)
 
+        # Старый
         '''db = backend.DatabaseManager()
         db.connect()
         db.login(username, password)
@@ -649,10 +651,12 @@ class bookkeeping(MDApp):
     def send_file(self):
         self.screen.ids.id_label_send_file.text = "Файл отправлен"
 
+        # новый
         url = 'http://localhost:5000/what_parsing'
         files = {'file': open(self.selected_file, 'rb')}
         response = requests.post(url, files=files)
 
+        # старый
         '''db = backend.DatabaseManager()
         db.connect()
         db.what_parsing(self.selected_file)
@@ -676,9 +680,10 @@ class bookkeeping(MDApp):
 
     def print_results(self):
         tax = float(self.screen.ids.tax.text)
-        first_date = self.screen.ids.date_filter1.text
-        second_date = self.screen.ids.date_filter2.text
+        first_date = self.screen.ids.date_filter3.text
+        second_date = self.screen.ids.date_filter4.text
 
+        # Новый
         url = 'http://localhost:5000/calculations'
         payload = {
             'tax': tax,
@@ -689,7 +694,7 @@ class bookkeeping(MDApp):
 
         sum_replenishment, sum_costs, sum_tax, balance = response.json()
 
-
+        # Старый
         '''db = backend.DatabaseManager()
         db.connect()
         sum_replenishment, sum_costs, sum_tax, balance = db.calculations(tax, first_date, second_date)
@@ -706,14 +711,14 @@ class bookkeeping(MDApp):
         first_date = self.screen.ids.date_filter1.text
         second_date = self.screen.ids.date_filter2.text
 
-        # связь с сервером
+        # Новый вариант
         url = 'http://localhost:5000/fetch_data'
         payload = {
             'format_filter': format_filter,
             'first_date': first_date,
             'second_date': second_date
         }
-        response = requests.get(url, data=payload)
+        response = requests.post(url, data=payload)
         rows = response.json()
 
         # старый вариант
@@ -721,6 +726,9 @@ class bookkeeping(MDApp):
         db.connect()
         rows = db.fetch_data(format_filter, first_date, second_date)
         db.close()'''
+
+        format = '%a, %d %b %Y %H:%M:%S GMT'
+        
 
         for row in rows:
             if row[3] == 0:
@@ -730,7 +738,7 @@ class bookkeeping(MDApp):
 
             self.screen.ids.table_list1.add_widget(
                 ItemTable(
-                    date = str(row[2]),
+                    date = str(datetime.datetime.strptime(row[2], format).date()),
                     name = row[0],
                     total = str(row[1]),
                     type_input = format_type,
@@ -750,6 +758,7 @@ class bookkeeping(MDApp):
         else:
             format_type = 1
 
+        # новый вариант
         url = 'http://localhost:5000/insert_data'
         payload = {
             'ids': 1,
@@ -760,11 +769,16 @@ class bookkeeping(MDApp):
         }
         response = requests.post(url, data=payload)
 
+        # test
+        '''print('\n')
+        print(response)
+        print('\n')'''
+
         # старый вариант
         '''db = backend.DatabaseManager()
         db.connect()
         db.insert_data(1, check_date, man_name, Summ, format_type)
-        db.close()'''      
+        db.close()'''
 
     '''def calc_table(self, *args): # Это расчёты, потом надо будет на сервер перенести
         tax = float(self.screen.ids.tax.text)
@@ -805,7 +819,7 @@ class bookkeeping(MDApp):
     def clear_table(self):
         self.screen.ids.table_list1.clear_widgets()
     
-if __name__ == '__main__': 
-    __init__.app.run()
+'''if __name__ == '__main__': 
+    __init__.app.run()'''
 bookkeeping().run()
 

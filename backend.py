@@ -18,7 +18,7 @@ class DatabaseManager:
             self.connection = mysql.connector.connect(
                 host='localhost', 
                 user='root', 
-                passwd='1qazxsw23edc', 
+                passwd='1qazxsw23edcG308:', 
                 database='bookkeeping')
         
         except mysql.connector.Error as e:
@@ -39,22 +39,28 @@ class DatabaseManager:
         except mysql.connector.Error as e:
             return False'''
 
+    # Функция форматирования даты  
+    def format_date(self, date_string):
+        format = '%d.%m.%Y'
+        date = datetime.datetime.strptime(date_string, format).date()
+        return(date)
+
+
     def calculations(self, tax, first_date, second_date):
-        
+
         first_date = self.format_date(first_date)
         second_date = self.format_date(second_date)
 
-        self.connect()
         cursor = self.connection.cursor()
         query = "SELECT summ, is_costs FROM register WHERE date BETWEEN %s AND %s"
         values = (first_date, second_date)
         cursor.execute(query, values)
         rows = cursor.fetchall()
-        self.close()
-
+        
         sum_replenishment = 0
         sum_costs = 0
         sum_tax = 0
+        tax = float(tax)
 
         for row in rows:
             if row[1] == 0:
@@ -63,21 +69,23 @@ class DatabaseManager:
             else:
                 sum_costs += float(row[0])
 
-        balance = sum_replenishment - sum_costs - sum_tax
+        balance = round(sum_replenishment - sum_costs - sum_tax, 2)
 
-        return sum_replenishment, sum_costs, sum_tax, round(balance, 2)
+        answer = [str(round(sum_replenishment, 2)), str(round(sum_costs, 2)), str(round(sum_tax, 2)), str(balance)]
+
+        return answer
         
         
 
-    # Функция форматирования даты  
-    def format_date(self, date_string):
-        format = '%d.%m.%Y'
-        date = datetime.datetime.strptime(date_string, format).date()
-        return(date)    
+    
     
     # Функция ручного ввода данных
     def insert_data(self, ids, date, name, total, type_input):
-        self.connect()
+        print('\n')
+        print(ids, date, name, total, type_input)
+        print('\n')
+    
+        # self.connect()
         query = "INSERT INTO register (id_user, date, сounterparty, summ, is_costs) VALUES (%s, %s, %s, %s, %s)"
         date = self.format_date(date)
         values = (int(ids), date, name, float(total), int(type_input))
@@ -85,14 +93,16 @@ class DatabaseManager:
             cursor = self.connection.cursor()
             cursor.execute(query, values)
             self.connection.commit()
-            print("Данные успешно добавлены")
+            print('Данные успешно добавлены')
+            return ('200')
         
         except mysql.connector.Error as e:
             print(e)
+            return ('500')
 
     # Функция регистрации
     def register_user(self, name, surname, login, password):
-        self.connect()
+        # self.connect()
         query = "INSERT INTO user (name, surname, login, password) VALUES (%s, %s, %s, %s)"
         values = (name, surname, login, password)
         try:
@@ -105,7 +115,7 @@ class DatabaseManager:
 
     # Функция входа
     def login(self, username, pasw):
-        self.connect()
+        # self.connect()
         query = "SELECT * FROM user WHERE login = %s AND password = %s"
         values = (username, pasw)
 
@@ -180,7 +190,7 @@ class DatabaseManager:
                 page.loc[index, 'Реквизиты контрагента'] = re.sub(r'Требования банка по прочим операциям/', '', page.loc[index, 'Реквизиты контрагента'])
 
             page_list = page.to_records(index=False)
-            self.connect()
+            # self.connect()
 
             query = "INSERT INTO register (id_user, date, summ, is_costs, сounterparty) VALUES (1, %s, %s, %s, %s)"
             try:
@@ -328,7 +338,7 @@ class DatabaseManager:
 
 
             page_list = page.to_records(index=False)
-            self.connect()
+            # self.connect()
 
 
             query = "INSERT INTO register (id_user, date, сounterparty, summ, is_costs) VALUES (1, %s, %s, %s, %s)"
@@ -344,16 +354,22 @@ class DatabaseManager:
                 print(e)
 
     # Функция определения вида выписки
-    def what_parsing(self, link):
-        pdf_file = open(link, 'rb')
+    def what_parsing(self, pdf_file):
+        
+        print('\n')
+        print(pdf_file, type(pdf_file))
+        print('\n')
+        #pdf_file = open(link, 'rb')
         reader = PyPDF2.PdfReader(pdf_file)
         page = reader.pages[0]
         text = page.extract_text()
 
         if 'СберБизнес' in text:
-            self.parsing_sber(link)
+            self.parsing_sber(pdf_file)
         elif 'ПАО АКБ "Приморье"' in text:
-            self.parsing_primorye(link)
+            self.parsing_primorye(pdf_file)
+
+        return ('200')
 
     # функция вывода данных в таблицу
     def fetch_data(self, format_filter, first_date, second_date):
@@ -365,13 +381,19 @@ class DatabaseManager:
         first_date = self.format_date(first_date)
         second_date = self.format_date(second_date)
 
-        self.connect()
+        print(first_date)
+        print(second_date)
+        print('\n')
+        # self.connect()
 
         cursor = self.connection.cursor()
         query = "SELECT сounterparty, summ, date, is_costs FROM register WHERE date BETWEEN %s AND %s AND is_costs = %s"
         values = (first_date, second_date, format_filter)
         cursor.execute(query, values)
         rows = cursor.fetchall()
+        
+        print(rows[0][2], type(rows[0][2]))
+        
         return rows
 
 
