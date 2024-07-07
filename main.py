@@ -480,20 +480,24 @@ MDScreen:
 
 <ItemTable>:
     size_hint_y: None
-    height: "42dp"
+    height: "90dp"
 
     MDLabel:
         text: root.date
         halign: "center"
+        font_size: 10
     MDLabel:
         text: root.name
         halign: "center"
+        font_size: 10
     MDLabel:
         text: root.total
-        halign: "center"  
+        halign: "center" 
+        font_size: 10 
     MDLabel:
         text: root.type_input
-        halign: "center"                              
+        halign: "center" 
+        font_size: 10                             
 '''
 
 class ItemTable(BoxLayout):

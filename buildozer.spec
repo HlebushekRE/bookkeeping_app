@@ -29,7 +29,7 @@ source.include_exts = py,png,jpg,kv,atlas
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.5
+version = 2.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -37,7 +37,7 @@ version = 0.5
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3, Kivy==2.2.1, kivymd, https://github.com/kivymd/KivyMD/archive/master.zip#sha256=e55b90474afa09a6c971f4ef1cdf07a4e028d7e565d8165179b7fc9b8f6b4d1b, pyjnius==1.6.1, Pillow
+requirements = python3, Kivy==2.3.0, kivymd, https://github.com/kivymd/KivyMD/archive/master.zip#sha256=6a2b43a3ee6659770c26334b6695167d2d343d50084353b1a4c422a9b8c430a1, pyjnius==1.6.1, Pillow, Flask==3.0.3
 
 
 # (str) Custom source folders for requirements
@@ -96,7 +96,7 @@ fullscreen = 0
 
 # (list) Permissions
 # (See https://python-for-android.readthedocs.io/en/latest/buildoptions/#build-options-1 for all the supported syntaxes and properties)
-#android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18)
+android.permissions = android.permission.INTERNET, (name=android.permission.WRITE_EXTERNAL_STORAGE;maxSdkVersion=18), android.permission.READ_EXTERNAL_STORAGE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host
