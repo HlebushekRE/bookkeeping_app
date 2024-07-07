@@ -18,9 +18,6 @@ import datetime
 from kivymd.uix.pickers import MDModalDatePicker
 
 from kivymd.uix.tab import MDTabsItemText, MDTabsItem
-import backend
-import __init__
-
 
 
 import sys
@@ -85,14 +82,6 @@ MDScreen:
 
     md_bg_color: self.theme_cls.backgroundColor
 
-    # MDTabsPrimary:
-    #    id: tabs
-    #    pos_hint: {"top": .9}
-    #    size_hint_x: 1
-    #    allow_stretch: True
-    #    label_only: True
-
-    #    MDDivider:
 
     MDTopAppBar:
         type: "small"
@@ -561,7 +550,7 @@ class bookkeeping(MDApp):
         login = self.screen.ids.login_reg.text
         password = self.screen.ids.pasw_reg.text
 
-        url = 'http://localhost:5000/login'
+        url = 'http://graverx4.beget.tech/register'
         payload = {
             'name': name,
             'surname': surname,
@@ -570,28 +559,17 @@ class bookkeeping(MDApp):
         }
         response = requests.post(url, data=payload)
 
-        '''db = backend.DatabaseManager()
-        db.connect()
-        db.register_user(name, surname, login, password)
-        db.close()'''
-
     def login_usr(self, *args):
         username = self.screen.ids.login_entry.text
         password = self.screen.ids.pasw_entry.text
 
         # новый
-        url = 'http://localhost:5000/login'
+        url = 'http://graverx4.beget.tech/login'
         payload = {
             'username': username,
             'password': password
         }
         response = requests.post(url, data=payload)
-
-        # Старый
-        '''db = backend.DatabaseManager()
-        db.connect()
-        db.login(username, password)
-        db.close()'''
 
     def on_save(self, instance, value, date_range, id): 
         if id == 'date_filter1':
@@ -652,15 +630,10 @@ class bookkeeping(MDApp):
         self.screen.ids.id_label_send_file.text = "Файл отправлен"
 
         # новый
-        url = 'http://localhost:5000/what_parsing'
+        url = 'http://graverx4.beget.tech/what_parsing'
         files = {'file': open(self.selected_file, 'rb')}
         response = requests.post(url, files=files)
 
-        # старый
-        '''db = backend.DatabaseManager()
-        db.connect()
-        db.what_parsing(self.selected_file)
-        db.close()'''
 
     def set_item(self, text_item):
         self.screen.ids.format_type.text = text_item
@@ -684,7 +657,7 @@ class bookkeeping(MDApp):
         second_date = self.screen.ids.date_filter4.text
 
         # Новый
-        url = 'http://localhost:5000/calculations'
+        url = 'http://graverx4.beget.tech/calculations'
         payload = {
             'tax': tax,
             'first_date': first_date,
@@ -694,11 +667,6 @@ class bookkeeping(MDApp):
 
         sum_replenishment, sum_costs, sum_tax, balance = response.json()
 
-        # Старый
-        '''db = backend.DatabaseManager()
-        db.connect()
-        sum_replenishment, sum_costs, sum_tax, balance = db.calculations(tax, first_date, second_date)
-        db.close()'''
 
         self.screen.ids.lab_sum_replenishment.text = 'Сумма пополнений: ' + str(sum_replenishment)
         self.screen.ids.lab_sum_costs.text = 'Сумма расходов: ' + str(sum_costs)
@@ -712,7 +680,7 @@ class bookkeeping(MDApp):
         second_date = self.screen.ids.date_filter2.text
 
         # Новый вариант
-        url = 'http://localhost:5000/fetch_data'
+        url = 'http://graverx4.beget.tech/fetch_data'
         payload = {
             'format_filter': format_filter,
             'first_date': first_date,
@@ -721,11 +689,6 @@ class bookkeeping(MDApp):
         response = requests.post(url, data=payload)
         rows = response.json()
 
-        # старый вариант
-        '''db = backend.DatabaseManager()
-        db.connect()
-        rows = db.fetch_data(format_filter, first_date, second_date)
-        db.close()'''
 
         format = '%a, %d %b %Y %H:%M:%S GMT'
         
@@ -759,9 +722,8 @@ class bookkeeping(MDApp):
             format_type = 1
 
         # новый вариант
-        url = 'http://localhost:5000/insert_data'
+        url = 'http://graverx4.beget.tech/insert_data'
         payload = {
-            'ids': 1,
             'date': check_date,
             'name': man_name,
             'total': Summ,
@@ -769,57 +731,12 @@ class bookkeeping(MDApp):
         }
         response = requests.post(url, data=payload)
 
-        # test
-        '''print('\n')
-        print(response)
-        print('\n')'''
-
-        # старый вариант
-        '''db = backend.DatabaseManager()
-        db.connect()
-        db.insert_data(1, check_date, man_name, Summ, format_type)
-        db.close()'''
-
-    '''def calc_table(self, *args): # Это расчёты, потом надо будет на сервер перенести
-        tax = float(self.screen.ids.tax.text)
-        deductible = float(self.screen.ids.deductible.text)
-        check_date = self.screen.ids.check_date.text
-        Summ = int(self.screen.ids.Summ.text)
-        man_name = self.screen.ids.man_name.text
-        format_type = self.screen.ids.format_type.text
-        
-
-        amount_tax = Summ / 100 * tax
-        total_sum = Summ - Summ / 100 * deductible
-        print(Summ, amount_tax, total_sum)
 
 
-
-
-        if format_type == 'Пополнение':
-            self.screen.ids.table_list1.add_widget(
-                ItemTable(
-                    date = check_date,
-                    name = man_name,
-                    total = str(total_sum),
-                    type_input = format_type,
-                )
-            )
-        else:
-            self.screen.ids.table_list1.add_widget(
-                ItemTable(
-                    date = check_date,
-                    name = man_name,
-                    total = str(Summ),
-                    type_input = format_type,
-                )
-            )'''
-
-
+   
     def clear_table(self):
         self.screen.ids.table_list1.clear_widgets()
     
-'''if __name__ == '__main__': 
-    __init__.app.run()'''
+
 bookkeeping().run()
 
